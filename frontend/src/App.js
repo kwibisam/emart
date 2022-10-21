@@ -1,13 +1,22 @@
 import './App.css';
+import data from './data';
+import HomePage from './HomePage';
+import ProductPage from './ProductPage';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
 function App() {
   return (
-    <div>
+    <BrowserRouter>
       <header>
-        <a href="/">emart</a>
+        <Link to="/">emart</Link>
       </header>
-      <main>List products here</main>
-    </div>
+      <main>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products/:slug" element={<ProductPage />} />
+        </Routes>
+      </main>
+    </BrowserRouter>
   );
 }
 
