@@ -3,37 +3,69 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 // import data from './data';
 import axios from 'axios';
+import logger from 'use-reducer-logger';
+import { useReducer } from 'react';
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'FETCH_REQUEST':
+      return { ...state, loading: true };
+    case 'FETCH_SUCCESS':
+      return { ...state, products: action.payload, loading: false };
+    case 'FETCH_FAIL':
+      return { ...state, loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
 
 export default function HomePage() {
-  const [products, setProducts] = useState([]);
+  const [{ loading, products, error }, dispatch] = useReducer(logger(reducer), {
+    loading: true,
+    error: '',
+    products: [],
+  });
+
   useEffect(() => {
     const fetchData = async () => {
-      const result = await axios.get('/api/products');
-      setProducts(result.data);
+      dispatch({ type: 'FETCH_REQUEST' });
+      try {
+        const result = await axios.get('/api/products');
+        dispatch({ type: 'FETCH_SUCCESS', payload: result.data });
+      } catch (err) {
+        dispatch({ type: 'FETCH_FAIL', payload: err.message });
+      }
     };
 
     fetchData();
   }, []);
+
   return (
     <div>
       <h1>Featured Products</h1>
       <div className="products">
-        {products.map((product) => (
-          <div key={product.slug} className="product">
-            <Link to={`/products/${product.slug}`}>
-              <img src={product.image} alt={product.name} />
-            </Link>
-            <div className="product-info">
+        {loading ? (
+          <div>Loading...</div>
+        ) : error ? (
+          <div>{Error}</div>
+        ) : (
+          products.map((product) => (
+            <div key={product.slug} className="product">
               <Link to={`/products/${product.slug}`}>
-                <p>{product.name}</p>
+                <img src={product.image} alt={product.name} />
               </Link>
-              <strong>
-                <p>{product.price}</p>
-              </strong>
-              <button>Add to cart</button>
+              <div className="product-info">
+                <Link to={`/products/${product.slug}`}>
+                  <p>{product.name}</p>
+                </Link>
+                <strong>
+                  <p>{product.price}</p>
+                </strong>
+                <button>Add to cart</button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

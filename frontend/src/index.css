@@ -34,7 +34,6 @@ main {
 .product img {
   width: 100%;
   max-width: 18rem;
-  object-fit: cover;
 }
 
 .product-info {
