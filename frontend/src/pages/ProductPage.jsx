@@ -17,6 +17,8 @@ import Button from 'react-bootstrap/Button';
 
 import axios from 'axios';
 import Rating from '../components/Rating';
+import { useContext } from 'react';
+import { Store } from '../Store';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -54,6 +56,14 @@ export default function ProductPage() {
 
     fetchData();
   }, [slug]);
+
+  const { state, dispatch: ctxDispatch } = useContext(Store);
+  const addToCartHandler = () => {
+    ctxDispatch({
+      type: 'CART_ADD_ITEM',
+      payload: { ...product, quantity: 1 },
+    });
+  };
 
   return loading ? (
     <LoadingBox />
@@ -109,7 +119,9 @@ export default function ProductPage() {
               {product.qtyInStock > 0 && (
                 <ListGroup.Item>
                   <div className="d-grid">
-                    <Button variant="primary">Add to cart</Button>
+                    <Button onClick={addToCartHandler} variant="primary">
+                      Add to cart
+                    </Button>
                   </div>
                 </ListGroup.Item>
               )}
