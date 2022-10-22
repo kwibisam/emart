@@ -1,6 +1,7 @@
 const data = {
   products: [
     {
+      _id: 1,
       name: 'short sleeve polo',
       slug: 'short-sleeve-polo',
       category: 'shirts',
@@ -14,6 +15,7 @@ const data = {
     },
 
     {
+      _id: 2,
       name: 'leather oversize jacket',
       slug: 'leather-oversize-jacket',
       category: 'jackets',
@@ -27,6 +29,7 @@ const data = {
     },
 
     {
+      _id: 3,
       name: 'pullover hoodie',
       slug: 'pullover-hoodie',
       category: 'hoodies',
@@ -39,6 +42,7 @@ const data = {
       description: 'awesome hoodie',
     },
     {
+      _id: 4,
       name: 'black hoodie',
       slug: 'black-hoodie',
       category: 'hoodies',
