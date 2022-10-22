@@ -19,7 +19,7 @@ const data = {
       category: 'jackets',
       image: '/images/p3.jpg',
       price: 120,
-      qtyInStock: 40,
+      qtyInStock: 0,
       brand: 'polo',
       rating: 4.5,
       numReviews: 10,

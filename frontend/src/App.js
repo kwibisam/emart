@@ -1,8 +1,7 @@
 import './App.css';
-import data from './data';
 import HomePage from './HomePage';
-import ProductPage from './ProductPage';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import ProductPage from './pages/ProductPage';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
 import { LinkContainer } from 'react-router-bootstrap';
@@ -20,7 +19,7 @@ function App() {
             </Container>
           </Navbar>
         </header>
-        <main>
+        <main className="mt-3">
           <Container>
             <Routes>
               <Route path="/" element={<HomePage />} />
