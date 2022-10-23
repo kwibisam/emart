@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useReducer } from 'react';
 import { useEffect } from 'react';
 
@@ -36,6 +36,7 @@ const reducer = (state, action) => {
 export default function ProductPage() {
   const params = useParams();
   const { slug } = params;
+  const navigate = useNavigate();
 
   const [{ loading, product, error }, dispatch] = useReducer(reducer, {
     loading: true,
@@ -73,6 +74,7 @@ export default function ProductPage() {
       type: 'CART_ADD_ITEM',
       payload: { ...product, quantity },
     });
+    navigate('/cart');
   };
 
   return loading ? (
