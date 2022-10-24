@@ -1,9 +1,11 @@
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
+import { Store } from '../Store';
+import { getError } from '../utils';
 
 export default function SigninPage() {
   const [password, setPassword] = useState('');
@@ -11,6 +13,10 @@ export default function SigninPage() {
   const { search } = useLocation();
   const redirectInUrl = new URLSearchParams(search).get('redirect');
   const redirect = redirectInUrl ? redirectInUrl : '/';
+
+  const { state, dispatch: ctxDispatch } = useContext(Store);
+  const { userInfo } = state;
+  const navigate = useNavigate();
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -21,8 +27,19 @@ export default function SigninPage() {
         password,
       });
       console.log('Data', data);
-    } catch (err) {}
+      ctxDispatch({ type: 'USER_SIGNIN', payload: data });
+      localStorage.setItem('userInfo', JSON.stringify(data));
+      navigate(redirect || '/');
+    } catch (err) {
+      alert(getError(err));
+    }
   };
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate(redirect);
+    }
+  }, [navigate, redirect, userInfo]);
 
   return (
     <Container className="small-container">
