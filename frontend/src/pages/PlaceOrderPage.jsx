@@ -1,19 +1,38 @@
-import React from 'react';
+import React, { useReducer } from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import CheckoutSteps from '../components/CheckoutSteps';
+import LoadingBox from '../components/LoadingBox';
 import { Link, useNavigate } from 'react-router-dom';
+import { getError } from '../utils';
 import { useContext } from 'react';
 import { Store } from '../Store';
 import { useEffect } from 'react';
+import axios from 'axios';
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'CREATE_REQUEST':
+      return { ...state, loading: true };
+    case 'CREATE_SUCCESS':
+      return { ...state, loading: false };
+    case 'CREATE_FAIL':
+      return { ...state, loading: false };
+    default:
+      return state;
+  }
+};
 
 export default function PlaceOrderPage() {
   const { state, dispatch: ctxDispatch } = useContext(Store);
   const { cart, userInfo } = state;
   const navigate = useNavigate();
+  const [{ loading }, dispatch] = useReducer(reducer, {
+    loading: false,
+  });
 
   const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
 
@@ -25,7 +44,37 @@ export default function PlaceOrderPage() {
   cart.taxPrice = round2(0.15 * cart.itemsPrice);
   cart.totalPrice = cart.itemsPrice + cart.shippingPrice + cart.taxPrice;
 
-  const placeOrderHandler = async () => {};
+  const placeOrderHandler = async () => {
+    try {
+      dispatch({ type: 'CREATE_REQUEST' });
+      const { data } = axios.post(
+        '/api/orders',
+        {
+          orderItems: cart.cartItems,
+          shippingAdress: cart.shippingAddress,
+          paymentMethod: cart.paymentMethod,
+          itemsPrice: cart.itemsPrice,
+          shippingPrice: cart.shippingPrice,
+          taxPrice: cart.taxPrice,
+          totalPrice: cart.taxPrice,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userInfo.token}`,
+          },
+        }
+      );
+
+      ctxDispatch({ type: 'CLEAR_CART' });
+      dispatch('CREATE_SUCCESS');
+      localStorage.removeItem('cartItems');
+      navigate(`/order/${data.order_id}`);
+    } catch (err) {
+      dispatch({ type: 'REQUEST_FAIL' });
+      alert(getError(err));
+    }
+  };
+
   useEffect(() => {
     if (!cart.paymentMethod) {
       navigate('/payment');
@@ -78,7 +127,7 @@ export default function PlaceOrderPage() {
                           alt={item.name}
                           className="img-fluid rounded img-thumbnail"
                         ></img>{' '}
-                        <Link to={`/products/${item.slug}`}>item.name</Link>
+                        <Link to={`/products/${item.slug}`}>{item.name}</Link>
                       </Col>
                       <Col md={3}>
                         <span>{item.quantity}</span>
@@ -139,6 +188,7 @@ export default function PlaceOrderPage() {
                     >
                       Place order
                     </Button>
+                    {loading && <LoadingBox></LoadingBox>}
                   </div>
                 </ListGroup.Item>
               </ListGroup>

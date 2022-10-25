@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { Store } from '../Store';
 import { useEffect } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function PaymentMethodPage() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ export default function PaymentMethodPage() {
   } = state;
 
   const [paymentMethodName, setPaymentMethod] = useState(
-    paymentMethodName || 'PayPal'
+    paymentMethod || 'PayPal'
   );
 
   useEffect(() => {
@@ -26,8 +26,8 @@ export default function PaymentMethodPage() {
 
   const submitHundler = (e) => {
     e.preventDefault();
-    ctxDispatch({ type: 'SAVE_SHIPPING_METHOD', payload: paymentMethodName });
-    localStorage.setItem('shippingMethod', paymentMethodName);
+    ctxDispatch({ type: 'SAVE_PAYMENT_METHOD', payload: paymentMethodName });
+    localStorage.setItem('paymentMethod', paymentMethodName);
     navigate('/placeorder');
   };
 
@@ -44,7 +44,7 @@ export default function PaymentMethodPage() {
               id="PayPal"
               label="PayPal"
               value="PayPal"
-              checked={paymentMethodName == 'PayPal'}
+              checked={paymentMethodName === 'PayPal'}
               onChange={(e) => setPaymentMethod(e.target.value)}
             />
           </div>
@@ -55,7 +55,7 @@ export default function PaymentMethodPage() {
               id="Stripe"
               label="Stripe"
               value="Stripe"
-              checked={paymentMethodName == 'Stripe'}
+              checked={paymentMethodName === 'Stripe'}
               onChange={(e) => setPaymentMethod(e.target.value)}
             />
           </div>
