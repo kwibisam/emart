@@ -11,7 +11,7 @@ import { getError } from '../utils';
 import { useContext } from 'react';
 import { Store } from '../Store';
 import { useEffect } from 'react';
-import axios from 'axios';
+import Axios from 'axios';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -27,36 +27,37 @@ const reducer = (state, action) => {
 };
 
 export default function PlaceOrderPage() {
-  const { state, dispatch: ctxDispatch } = useContext(Store);
-  const { cart, userInfo } = state;
   const navigate = useNavigate();
+
   const [{ loading }, dispatch] = useReducer(reducer, {
     loading: false,
   });
 
-  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100;
+  const { state, dispatch: ctxDispatch } = useContext(Store);
+  const { cart, userInfo } = state;
 
+  const round2 = (num) => Math.round(num * 100 + Number.EPSILON) / 100; // 123.2345 => 123.23
   cart.itemsPrice = round2(
     cart.cartItems.reduce((a, c) => a + c.quantity * c.price, 0)
   );
-
-  cart.shippingPrice = cart.cartItems > 100 ? round2(0) : round2(10);
+  cart.shippingPrice = cart.itemsPrice > 100 ? round2(0) : round2(10);
   cart.taxPrice = round2(0.15 * cart.itemsPrice);
   cart.totalPrice = cart.itemsPrice + cart.shippingPrice + cart.taxPrice;
 
   const placeOrderHandler = async () => {
     try {
       dispatch({ type: 'CREATE_REQUEST' });
-      const { data } = axios.post(
+
+      const { data } = await Axios.post(
         '/api/orders',
         {
           orderItems: cart.cartItems,
-          shippingAdress: cart.shippingAddress,
+          shippingAddress: cart.shippingAddress,
           paymentMethod: cart.paymentMethod,
           itemsPrice: cart.itemsPrice,
           shippingPrice: cart.shippingPrice,
           taxPrice: cart.taxPrice,
-          totalPrice: cart.taxPrice,
+          totalPrice: cart.totalPrice,
         },
         {
           headers: {
@@ -64,13 +65,12 @@ export default function PlaceOrderPage() {
           },
         }
       );
-
-      ctxDispatch({ type: 'CLEAR_CART' });
-      dispatch('CREATE_SUCCESS');
+      ctxDispatch({ type: 'CART_CLEAR' });
+      dispatch({ type: 'CREATE_SUCCESS' });
       localStorage.removeItem('cartItems');
-      navigate(`/order/${data.order_id}`);
+      navigate(`/order/${data.order._id}`);
     } catch (err) {
-      dispatch({ type: 'REQUEST_FAIL' });
+      dispatch({ type: 'CREATE_FAIL' });
       alert(getError(err));
     }
   };
@@ -80,10 +80,9 @@ export default function PlaceOrderPage() {
       navigate('/payment');
     }
   }, [cart, navigate]);
-
   return (
     <div>
-      <CheckoutSteps step1 step2 step3 step4 />
+      <CheckoutSteps step1 step2 step3 step4></CheckoutSteps>
       <title>Preview Order</title>
       <h1 className="my-3">Preview Order</h1>
       <Row>
@@ -92,12 +91,10 @@ export default function PlaceOrderPage() {
             <Card.Body>
               <Card.Title>Shipping</Card.Title>
               <Card.Text>
-                <strong>Name:</strong>
-                {cart.shippingAddress.fullName} <br />
-                <strong>Address:</strong>
-                {cart.shippingAddress.address},{cart.shippingAddress.city},
-                {cart.shippingAddress.postalCode},{cart.shippingAddress.country}
-                ,
+                <strong>Name:</strong> {cart.shippingAddress.fullName} <br />
+                <strong>Address: </strong> {cart.shippingAddress.address},
+                {cart.shippingAddress.city}, {cart.shippingAddress.postalCode},
+                {cart.shippingAddress.country}
               </Card.Text>
               <Link to="/shipping">Edit</Link>
             </Card.Body>
@@ -107,8 +104,7 @@ export default function PlaceOrderPage() {
             <Card.Body>
               <Card.Title>Payment</Card.Title>
               <Card.Text>
-                <strong>Payment Method</strong>
-                {cart.paymentMethod}
+                <strong>Method:</strong> {cart.paymentMethod}
               </Card.Text>
               <Link to="/payment">Edit</Link>
             </Card.Body>
@@ -127,14 +123,12 @@ export default function PlaceOrderPage() {
                           alt={item.name}
                           className="img-fluid rounded img-thumbnail"
                         ></img>{' '}
-                        <Link to={`/products/${item.slug}`}>{item.name}</Link>
+                        <Link to={`/product/${item.slug}`}>{item.name}</Link>
                       </Col>
                       <Col md={3}>
                         <span>{item.quantity}</span>
                       </Col>
-                      <Col md={3}>
-                        <span>{item.price}</span>
-                      </Col>
+                      <Col md={3}>${item.price}</Col>
                     </Row>
                   </ListGroup.Item>
                 ))}
@@ -143,7 +137,6 @@ export default function PlaceOrderPage() {
             </Card.Body>
           </Card>
         </Col>
-
         <Col md={4}>
           <Card>
             <Card.Body>
@@ -155,41 +148,39 @@ export default function PlaceOrderPage() {
                     <Col>${cart.itemsPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-
                 <ListGroup.Item>
                   <Row>
                     <Col>Shipping</Col>
                     <Col>${cart.shippingPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-
                 <ListGroup.Item>
                   <Row>
                     <Col>Tax</Col>
                     <Col>${cart.taxPrice.toFixed(2)}</Col>
                   </Row>
                 </ListGroup.Item>
-
                 <ListGroup.Item>
                   <Row>
                     <Col>
-                      <strong>Order Total</strong>
+                      <strong> Order Total</strong>
                     </Col>
-                    <Col>${cart.totalPrice.toFixed(2)}</Col>
+                    <Col>
+                      <strong>${cart.totalPrice.toFixed(2)}</strong>
+                    </Col>
                   </Row>
                 </ListGroup.Item>
-
                 <ListGroup.Item>
                   <div className="d-grid">
                     <Button
                       type="button"
                       onClick={placeOrderHandler}
-                      disabled={cart.cartItems === 0}
+                      disabled={cart.cartItems.length === 0}
                     >
-                      Place order
+                      Place Order
                     </Button>
-                    {loading && <LoadingBox></LoadingBox>}
                   </div>
+                  {loading && <LoadingBox></LoadingBox>}
                 </ListGroup.Item>
               </ListGroup>
             </Card.Body>

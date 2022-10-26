@@ -50,7 +50,7 @@ export default function OrderPage() {
       try {
         dispatch({ type: 'FETCH_REQUEST' });
         const { data } = await axios.get(`/api/orders/${orderId}`, {
-          header: {
+          headers: {
             authorization: `Bearer ${userInfo.token}`,
           },
         });
@@ -67,6 +67,7 @@ export default function OrderPage() {
       fetchOrder();
     }
   }, [navigate, order, userInfo, orderId]);
+
   return loading ? (
     <LoadingBox></LoadingBox>
   ) : error ? (
