@@ -43,14 +43,16 @@ export default function HomePage() {
 
   return (
     <div>
-      <h1>Featured Products</h1>
+      <h3 className="title" class="title">
+        POPULAR PRODUCTS
+      </h3>
       <div className="products">
         {loading ? (
           <LoadingBox />
         ) : error ? (
           <MessageBox variant="danger"> {error}</MessageBox>
         ) : (
-          <Row>
+          <Row className="row">
             {products.map((product) => (
               <Col key={product.slug} sm={6} md={4} lg={3} className="mb-3">
                 <Product product={product}></Product>

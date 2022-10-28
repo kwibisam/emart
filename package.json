@@ -1,0 +1,21 @@
+{
+  "name": "emart",
+  "version": "1.0.0",
+  "description": "*Create a custom webserver with express js\r *create api endpoints that serve product information\r *secure the api endpoints with jwt authentication\r *react context to manage global state\r \\*paypal integration in ecommerce app",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd backend && npm install && cd ../frontend && npm install && npm run build",
+    "start": "node backend/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kwibisam/emart.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kwibisam/emart/issues"
+  },
+  "homepage": "https://github.com/kwibisam/emart#readme"
+}
