@@ -28,7 +28,7 @@ function Product(props) {
   };
 
   return (
-    <Card className="product">
+    <Card className="product" h-100>
       <Link to={`/products/${product.slug}`}>
         <img src={product.image} className="card-img-top" alt={product.name} />
       </Link>
