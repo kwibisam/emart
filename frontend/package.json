@@ -2,6 +2,10 @@
   "name": "frontend",
   "proxy": "http://localhost:5000",
   "version": "0.1.0",
+  "engines": {
+    "node": "16.18.0",
+    "npm": "8.19.1"
+  },
   "private": true,
   "dependencies": {
     "@paypal/react-paypal-js": "^7.8.1",
